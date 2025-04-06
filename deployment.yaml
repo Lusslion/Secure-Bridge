@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bridge
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: bridge
+  template:
+    metadata:
+      labels:
+        app: bridge
+    spec:
+      containers:
+      - name: python-bridge
+        image: python-bridge:1.0
+        ports:
+        - containerPort: 5555
+      - name: node-bridge
+        image: node-bridge:1.0
+        ports:
+        - containerPort: 5556

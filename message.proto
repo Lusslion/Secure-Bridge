@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message BridgeMessage {
+  string operation = 1;
+  bytes data = 2;
+}

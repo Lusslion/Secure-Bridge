@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.env/
+build/
+dist/
+*.egg-info/
+
+# Node
+node_modules/
+npm-debug.log
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Keys y Secrets
+*.key
+*.pem
+*.jwt
+
+# Logs
+*.log
+.DS_Store

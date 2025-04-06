@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pyzmq
+pyjwt
+msgpack
+protobuf
+circuitbreaker
+structlog
+cryptography
+prometheus_client

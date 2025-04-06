@@ -1,0 +1,8 @@
+server_port: 5555
+client_port: 5556
+private_key: "path/to/private.key"
+public_key: "path/to/public.key"
+peer_public_key: "path/to/peer_public.key"
+jwt_secret: "your_jwt_secret"
+jwt_rotation_interval: 3600  # Intervalo en segundos para rotar claves JWT
+enable_jwt_rotation: true  # Habilitar/deshabilitar rotación de claves JWT
