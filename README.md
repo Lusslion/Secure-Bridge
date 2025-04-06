@@ -2,7 +2,28 @@
 
 Puente seguro para comunicación entre servicios Python y Node.js
 
+## Prerequisitos
+
+- Python 3.7+
+- Node.js 14+ (para la versión TypeScript)
+- ZeroMQ (libzmq)
+
+### Instalar ZeroMQ
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install libzmq3-dev
+
+# MacOS
+brew install zeromq
+
+# Windows
+# Descargar el instalador de http://zeromq.org/download
+```
+
 ## Instalación
+
+### Python
 
 ```bash
 # Clonar el repositorio
@@ -11,108 +32,120 @@ cd secure-bridge
 
 # Configurar entorno Python
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # En Windows: .\venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Uso Básico
+### Node.js
 
-```python
-from secure_bridge import SecureBridge
-
-# Generar claves
-secret, public = SecureBridge.generate_curve_keypair()
-
-# Crear instancia
-bridge = SecureBridge(
-    server_port=5555,
-    client_port=5556,
-    private_key=secret,
-    public_key=public,
-    peer_public_key=peer_public,
-    jwt_secret="secreto"
-)
-
-# Registrar operaciones
-bridge.register_handler("mi_operacion", mi_handler)
-
-# Iniciar servidor
-await bridge.start_server()
+```bash
+npm install secure-bridge zeromq@6 jsonwebtoken
 ```
 
-## Uso en Otros Proyectos
+## Guía Paso a Paso
 
-### Python
+### 1. Generar Claves
+
+Primero necesitas generar las claves para ambos servicios:
 
 ```python
 from secure_bridge import SecureBridge
 
-async def mi_servicio():
-    # Generar o cargar claves existentes
-    secret, public = SecureBridge.generate_curve_keypair()
-    peer_secret, peer_public = SecureBridge.generate_curve_keypair()
+# Servicio 1
+service1_secret, service1_public = SecureBridge.generate_curve_keypair()
 
-    # Configurar el bridge
+# Servicio 2
+service2_secret, service2_public = SecureBridge.generate_curve_keypair()
+
+# Guardar las claves de forma segura
+print(f"""
+Servicio 1:
+  Privada: {service1_secret}
+  Pública: {service1_public}
+
+Servicio 2:
+  Privada: {service2_secret}
+  Pública: {service2_public}
+""")
+```
+
+### 2. Configurar el Servidor
+
+```python
+# servidor.py
+import asyncio
+from secure_bridge import SecureBridge
+
+async def main():
     bridge = SecureBridge(
         server_port=5555,
         client_port=5556,
-        private_key=secret,
-        public_key=public,
-        peer_public_key=peer_public,
-        jwt_secret="mi_secreto"
+        private_key=service1_secret,     # Tu clave privada
+        public_key=service1_public,      # Tu clave pública
+        peer_public_key=service2_public, # Clave pública del otro servicio
+        jwt_secret="tu_secreto_jwt"      # Secreto para tokens JWT
     )
-
-    # Definir handlers para las operaciones
-    def handler_suma(data):
+    
+    # Definir manejadores
+    def suma_handler(data):
         return {"resultado": data["a"] + data["b"]}
-
-    # Registrar handlers
-    bridge.register_handler("suma", handler_suma)
-
-    # Iniciar el servidor
+    
+    bridge.register_handler("suma", suma_handler)
+    
+    # Iniciar rotación JWT y servidor
     await bridge.init_jwt_rotation()
     await bridge.start_server()
 
-# Como cliente
-async def ejemplo_cliente():
-    bridge = SecureBridge(...)
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### 3. Configurar el Cliente
+
+```python
+# cliente.py
+import asyncio
+from secure_bridge import SecureBridge
+
+async def main():
+    bridge = SecureBridge(
+        server_port=5556,          # Puerto del servidor destino
+        client_port=5555,          # Puerto local
+        private_key=service2_secret,     # Tu clave privada
+        public_key=service2_public,      # Tu clave pública
+        peer_public_key=service1_public, # Clave pública del servidor
+        jwt_secret="tu_secreto_jwt"      # El mismo secreto JWT
+    )
+
+    # Enviar petición
     resultado = await bridge.start_client({
         "operation": "suma",
-        "token": "tu_jwt_token",
+        "token": "tu_jwt_token",  # Generar un token JWT válido
         "data": {"a": 5, "b": 3}
     })
-    print(resultado)  # {"resultado": 8}
+    
+    print(resultado)  # {"status": "success", "data": {"resultado": 8}}
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
-### TypeScript/Node.js
+## Consideraciones de Seguridad
 
-```typescript
-import { SecureBridge } from 'secure-bridge';
+1. **Claves**: 
+   - Guarda las claves de forma segura
+   - No compartas las claves privadas
+   - Rota las claves periódicamente
 
-// Como servidor
-const bridge = new SecureBridge({
-    serverPort: 5555,
-    clientPort: 5556,
-    privateKey: 'tu_clave_privada',
-    publicKey: 'tu_clave_publica',
-    peerPublicKey: 'clave_publica_par',
-    jwtSecret: 'tu_secreto'
-});
+2. **JWT**:
+   - Usa secretos fuertes para JWT
+   - Implementa expiración de tokens
+   - Rota los secretos JWT regularmente
 
-bridge.registerHandler('suma', (data) => {
-    return { resultado: data.a + data.b };
-});
-
-bridge.startServer();
-
-// Como cliente
-const resultado = await bridge.startClient({
-    operation: 'suma',
-    token: 'tu_jwt_token',
-    data: { a: 5, b: 3 }
-});
-console.log(resultado); // { resultado: 8 }
-```
+3. **Puertos**:
+   - Usa firewalls para restringir acceso
+   - Configura SSL/TLS si es necesario
+   - No expongas los puertos públicamente sin seguridad adicional
 
 ## Características
 
