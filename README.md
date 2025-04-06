@@ -13,33 +13,6 @@ cd secure-bridge
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-
-# Configurar Node.js (si usas la parte de Node)
-npm install
-```
-
-```bash
-pip install -e .
-```
-
-## Instalación como Dependencia
-
-### Opción 1: Usando pip desde PyPI
-
-```bash
-pip install secure-bridge
-```
-
-### Opción 2: Usando pip con Git
-
-```bash
-pip install git+https://github.com/Lusslion/Secure-Bridge.git
-```
-
-### Opción 3: Agregando a requirements.txt
-
-```txt
-secure-bridge @ git+https://github.com/Lusslion/Secure-Bridge.git
 ```
 
 ## Uso Básico
