@@ -42,7 +42,14 @@ pip install -r requirements.txt
 npm install secure-bridge zeromq@6 jsonwebtoken
 ```
 
-## Ejemplo Rápido
+## Inicio Rápido
+
+```bash
+# Instalar y probar todo automáticamente
+python quick_start.py
+```
+
+O paso a paso:
 
 ```bash
 # 1. Generar claves
