@@ -42,6 +42,27 @@ pip install -r requirements.txt
 npm install secure-bridge zeromq@6 jsonwebtoken
 ```
 
+## Ejemplo Rápido
+
+```bash
+# 1. Generar claves
+python examples/generate_keys.py
+
+# 2. Iniciar el servidor en una terminal
+python examples/server.py
+
+# 3. En otra terminal, ejecutar el cliente
+python examples/client.py
+```
+
+## Estructura de Ejemplos
+```
+examples/
+├── generate_keys.py  # Genera y guarda claves
+├── server.py        # Ejemplo de servidor
+└── client.py        # Ejemplo de cliente
+```
+
 ## Guía Paso a Paso
 
 ### 1. Generar Claves
